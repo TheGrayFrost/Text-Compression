@@ -1,5 +1,7 @@
 # Lossless compression using Neural Networks
 
+omg
+
 ## 0. Code
 The Code is organized as follows:
 1. **RNN** : Contains code to build RNN models which generate probability tables for the Arithmetic Coder
