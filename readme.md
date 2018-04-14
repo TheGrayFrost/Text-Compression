@@ -2,13 +2,10 @@
 
 ## 0. Code
 The Code is organized as follows:
-1. **src** : Contains main code
-2. **misc_code**: Contains previously experimented code
-3. **data**: Contains data sources
-The code was developed using Tensorflow 0.12.1 version. Since TF has changed interface since its 1.0 release, some of the code might not work correctly. I am working on modifying the code appropriately.
-
-## 0.1 PDF Report
-Detailed Report (CS224n course project report) is accessible here: [https://web.stanford.edu/~kedart/files/deepzip.pdf](https://web.stanford.edu/~kedart/files/deepzip.pdf)
+1. **RNN** : Contains code to build RNN models which generate probability tables for the Arithmetic Coder
+2. **Arithmetic Coder**: Contains practical arithmetic encoding code that performs renormalization and range precision checks
+3. **Compression Scripts**: Contains runnable scripts that call appropriate functions from RNN and Arithmetic Coder to compress data.
+The code was developed using Tensorflow 1.5.0 version.
 
 ## 1. Overview
 
@@ -128,27 +125,6 @@ The Hutter prize is a competition for compressing the wikipedia knowledge datase
 
 I tried with two real datasets, The first one is the chromosome 1 DNA dataset. For DNA compression, the LZ77 based compressors \(gzip etc. \) achieve 1.9 bits/base which is pretty bad, considering the worst case is 2 bits/base, while more state-of-the art custom compressors achieve 1.6 bits/base. I trained a character level RNN compressor \(1024 cell, 3 layer\) for a 5 days it achieved close to 1.35 bits/base compression which was encouraging. however, more experiments need to be performed on the DAN datasets, as it takes close to 30-40 epochs to achieve this performace which is very slow.
 
-### Pseudo-random number generator Dataset
-On closer analysis of the synthetic markov dataset which we were playing with, it was observed that is is a special form of a LAgged fibonacci generator. We consider the LAgged fibinacci generator, and consider the difficult cases, where the repeat length is the highest
-( Reference: Art of computer Programming Vol 2). The network experiments are still in progress, however, for simpler variants of the PRNG, it is able to decode the random number generator, which is surprising and motivating. 
-We consider the following parameters:
-
-```
-(15,1),(20,3),(25,3),(25,7),
-(31,13),(35,2),(39,8),(41,20),
-(49,12),(52,21),(58,19),(63,31),
-(73,25),(81,16),(95,11)
-```
-This, is a very good dataset for compressors, as any naive compressor should not be able to do anything (since they are "random numbers"). 
-
-
-## March Week 4 update:
-1. We experimented with very high period Lagged Fibonacci sequences. During the analysis of these sequences, we noticed that they have a lot of correlation with [De Bruijn sequences](https://en.wikipedia.org/wiki/De_Bruijn_sequence). De Bruijn sequences in fact form a subclass of PRNG, which are used in phase-detection problems. 
-2. Experimented with the following:
-  a. Adding some noise to make the k-Markov sources have non-zero entropy rate
-  b. Adding non-linearity to the dependence -> Analysis becomes very difficult as it is difficult to find the intermediate order entropy rates
-3. Experimented with [PixelRNN](https://github.com/carpedm20/pixel-rnn-tensorflow). Currently their implementation supports only MNIST images (digits). Working on extending it for larger images. 
-
 ### Practical Experiments:
 We experimented on a larger class of models including Hidden Markov Models, and more deeper versions of HMM. In each of the cases, where the vanishing gradients permitted, the NN-based model was able to compress the dataset to its entropy rate. 
 Eg: with 20% noise added to the k-Markov process, we construct a k-HMM process. We observe that the NN-Compressor does a good job. 
@@ -166,6 +142,7 @@ https://pdfs.semanticscholar.org/4889/65b61e62513f35dd927e08bf06265a2dba35.pdf
 
 
 ### Future Work
-1. I think if we stick to the idealistic experiments, then one of the challenge is to consider RNNs with longer memories. 
-2. The other challenge is improved convergence with 1 epoch or running. Or the other option is saving the network in an improved way. With appropriate training & quantization the weights can take 32-50x lower than the original network size, which can be pretty good. 
+1. The major challenge is the compression time. We need to explore faster optimization methods to get around that.
+2. The other challenge is improved convergence with 1 epoch or running. Or the other option is saving the network in an improved way. With appropriate training & quantization the weights can take 32-50x lower than the original network size, which can be pretty good.
+3. Another interesting extension of the project would be working with lossless compression of images. Images have significant dependencies, and modeling the same with RNN should be beneficial.
   
